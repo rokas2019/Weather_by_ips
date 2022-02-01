@@ -21,27 +21,27 @@ test_ip_list = ['122.35.203.161',
                 '24.169.250.142']
 
 
-def get_city_and_country(ip_address: str):
+def get_city_and_country(ip_address: str) -> tuple:
     city_url = f'{IP_API_URL}{ip_address}?apikey={IP_API_KEY}'
     result = requests.get(city_url).json()
     return result['ip'], result['country_name'], result['city'], result['latitude'], result['longitude']
 
 
-def get_weathers(lat: Union[int, float], lon: Union[int, float]):
-    payload = {'lat': lat, 'lon': lon, 'units': 'metric', 'appid': WEATHER_API_KEY}
+def get_weathers(lat: Union[int, float], lon: Union[int, float]) -> tuple:
+    payload = {'latitude': lat, 'longitude': lon, 'units': 'metric', 'appid': WEATHER_API_KEY}
     weather_url = f'{WEATHER_URL}?lat={lat}&lon={lon}'
     r = requests.get(weather_url, params=payload)
     result = r.json()
     return result['main']['temp'], result['weather'][0]['main']
 
 
-def get_all_data(ip_address: str):
-    geo = get_city_and_country(ip_address)
-    meteo = get_weathers(geo[3], geo[4])
-    return geo[:3] + meteo
+def get_all_data(ip_address: str) -> tuple:
+    geographical_data = get_city_and_country(ip_address)
+    meteorological_data = get_weathers(geographical_data[3], geographical_data[4])
+    return geographical_data[:3] + meteorological_data
 
 
-def make_csv_file(list_of_ips) -> None:
+def make_csv_file(list_of_ips: list) -> None:
     with open(CSV_FILE, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(['IP', 'Country', 'City', 'Temp', 'Weather'])
